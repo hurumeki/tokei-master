@@ -126,12 +126,7 @@ export class ScheduleTab {
       e.preventDefault();
       const dragging = this.grid.querySelector<HTMLElement>(".tile--dragging");
       if (!dragging || dragging === tile) return;
-      const rect = tile.getBoundingClientRect();
-      const after =
-        e.clientY === 0
-          ? (e.clientX - rect.left) / rect.width > 0.5
-          : (e.clientY - rect.top) / rect.height > 0.5;
-      if (after) {
+      if (shouldInsertAfter(tile, dragging, e.clientX, e.clientY)) {
         tile.after(dragging);
       } else {
         tile.before(dragging);
@@ -159,10 +154,11 @@ export class ScheduleTab {
         .elementFromPoint(e.clientX, e.clientY)
         ?.closest<HTMLElement>(".tile");
       if (!target || target === tile) return;
-      const rect = target.getBoundingClientRect();
-      const after = (e.clientY - rect.top) / rect.height > 0.5;
-      if (after) target.after(tile);
-      else target.before(tile);
+      if (shouldInsertAfter(target, tile, e.clientX, e.clientY)) {
+        target.after(tile);
+      } else {
+        target.before(tile);
+      }
     });
     const endTouch = (e: PointerEvent) => {
       if (pressTimer != null) {
@@ -190,6 +186,24 @@ export class ScheduleTab {
     tile.addEventListener("pointerup", endTouch);
     tile.addEventListener("pointercancel", endTouch);
   }
+}
+
+// Grid layout: choose X axis when target shares a row with the dragged tile,
+// otherwise Y axis. Y-only would never swap horizontally adjacent tiles.
+function shouldInsertAfter(
+  target: HTMLElement,
+  dragging: HTMLElement,
+  clientX: number,
+  clientY: number,
+): boolean {
+  const rect = target.getBoundingClientRect();
+  const dragRect = dragging.getBoundingClientRect();
+  const sameRow =
+    Math.abs(rect.top - dragRect.top) <
+    Math.min(rect.height, dragRect.height) / 2;
+  return sameRow
+    ? clientX > rect.left + rect.width / 2
+    : clientY > rect.top + rect.height / 2;
 }
 
 function stripUnit(kana: string, unit: string): string {
