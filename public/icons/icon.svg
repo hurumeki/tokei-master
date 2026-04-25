@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#fef6e4"/>
+  <circle cx="256" cy="256" r="192" fill="#ffffff" stroke="#1f2933" stroke-width="16"/>
+  <g stroke="#475569" stroke-width="6" stroke-linecap="round">
+    <line x1="256" y1="80" x2="256" y2="104"/>
+    <line x1="432" y1="256" x2="408" y2="256"/>
+    <line x1="256" y1="432" x2="256" y2="408"/>
+    <line x1="80" y1="256" x2="104" y2="256"/>
+  </g>
+  <g font-family="-apple-system, Helvetica, Arial, sans-serif" font-weight="800" font-size="48" text-anchor="middle" fill="#1f2933">
+    <text x="256" y="132">12</text>
+    <text x="380" y="272">3</text>
+    <text x="256" y="412">6</text>
+    <text x="132" y="272">9</text>
+  </g>
+  <line x1="256" y1="256" x2="256" y2="156" stroke="#1f2933" stroke-width="20" stroke-linecap="round"/>
+  <line x1="256" y1="256" x2="346" y2="256" stroke="#f582ae" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="256" cy="256" r="14" fill="#1f2933"/>
+</svg>
