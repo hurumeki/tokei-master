@@ -1,0 +1,419 @@
+:root {
+  --bg: #fef6e4;
+  --bg-card: #fffbf0;
+  --ink: #1f2933;
+  --ink-soft: #4a5568;
+  --primary: #f582ae;
+  --primary-ink: #2b2b2b;
+  --accent: #8bd3dd;
+  --accent-ink: #1f2933;
+  --warn: #ef4444;
+  --tick: #475569;
+  --tick-soft: #94a3b8;
+  --hour-hand: #1f2933;
+  --minute-hand: #f582ae;
+  --face-border: #1f2933;
+  --shadow: 0 4px 0 rgba(31, 41, 51, 0.12);
+  --radius: 16px;
+  --safe-top: env(safe-area-inset-top, 0);
+  --safe-bottom: env(safe-area-inset-bottom, 0);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans",
+    "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: contain;
+}
+
+#app {
+  min-height: 100%;
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Header ---------- */
+.app-header {
+  padding: 12px 20px 4px;
+}
+.app-header__title {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ---------- Tabs ---------- */
+.tabs {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px 0;
+}
+.tab-btn {
+  flex: 1;
+  font: inherit;
+  border: 3px solid var(--face-border);
+  background: var(--bg-card);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--ink-soft);
+  box-shadow: var(--shadow);
+  border-bottom: none;
+  position: relative;
+  bottom: -3px;
+}
+.tab-btn[aria-selected="true"] {
+  background: var(--primary);
+  color: var(--primary-ink);
+  z-index: 2;
+}
+.tab-btn__icon {
+  font-size: 22px;
+}
+
+/* ---------- Main / Panels ---------- */
+.app-main {
+  flex: 1;
+  background: var(--bg-card);
+  border-top: 3px solid var(--face-border);
+  position: relative;
+}
+.tab-panel {
+  display: none;
+  padding: 16px 20px 24px;
+}
+.tab-panel--active {
+  display: block;
+}
+
+/* ---------- Clock layout ---------- */
+.tab-panel--clock {
+  display: none;
+}
+.tab-panel--clock.tab-panel--active {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+@media (min-width: 900px) {
+  .tab-panel--clock.tab-panel--active {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    grid-template-areas:
+      "clock readout"
+      "clock controls"
+      "form  form";
+    align-items: center;
+  }
+  .clock-wrap {
+    grid-area: clock;
+  }
+  .time-readout {
+    grid-area: readout;
+  }
+  .controls {
+    grid-area: controls;
+  }
+  .schedule-form {
+    grid-area: form;
+  }
+}
+
+.clock-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ---------- Clock face SVG ---------- */
+.clock-face {
+  width: min(82vw, 560px);
+  aspect-ratio: 1 / 1;
+  height: auto;
+  touch-action: none;
+  user-select: none;
+}
+.clock-face--static {
+  width: 100%;
+  pointer-events: none;
+}
+.clock-face__bg {
+  fill: #fff;
+  stroke: var(--face-border);
+  stroke-width: 6;
+}
+.clock-face__tick {
+  stroke: var(--tick-soft);
+  stroke-width: 2;
+}
+.clock-face__tick--hour {
+  stroke: var(--tick);
+  stroke-width: 4;
+}
+.clock-face__num {
+  font-family: -apple-system, "Hiragino Sans", sans-serif;
+  font-weight: 800;
+  font-size: 36px;
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: var(--ink);
+}
+.clock-face__num--minute {
+  display: none;
+  fill: var(--minute-hand);
+  font-size: 28px;
+}
+.clock-face--minute-drag .clock-face__num--hour {
+  display: none;
+}
+.clock-face--minute-drag .clock-face__num--minute {
+  display: block;
+}
+
+.clock-hand {
+  stroke-linecap: round;
+}
+.clock-hand--hour {
+  stroke: var(--hour-hand);
+  stroke-width: 12;
+}
+.clock-hand--minute {
+  stroke: var(--minute-hand);
+  stroke-width: 8;
+}
+.clock-hand-hit {
+  stroke: rgba(0, 0, 0, 0.001);
+  stroke-width: 44;
+  stroke-linecap: round;
+  cursor: grab;
+}
+.clock-face--dragging .clock-hand-hit {
+  cursor: grabbing;
+}
+.clock-cap {
+  fill: var(--face-border);
+}
+
+/* Static (schedule tile) clocks shrink the labels. */
+.tile .clock-face__num {
+  font-size: 56px;
+}
+.tile .clock-face__bg {
+  stroke-width: 8;
+}
+.tile .clock-hand--hour {
+  stroke-width: 16;
+}
+.tile .clock-hand--minute {
+  stroke-width: 12;
+}
+
+/* ---------- Time readout (large kanji + furigana) ---------- */
+.time-readout {
+  text-align: center;
+  font-size: clamp(36px, 7vw, 64px);
+  font-weight: 800;
+  line-height: 1.4;
+  padding: 8px 0;
+}
+.time-readout ruby {
+  margin: 0 0.05em;
+}
+.time-readout rt {
+  font-size: 0.36em;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+.time-readout__num {
+  color: var(--ink);
+}
+.time-readout__unit {
+  color: var(--ink-soft);
+}
+
+/* ---------- Buttons ---------- */
+.controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+@media (min-width: 600px) {
+  .controls {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (min-width: 900px) {
+  .controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.btn {
+  font: inherit;
+  font-weight: 700;
+  font-size: 16px;
+  border: 3px solid var(--face-border);
+  border-radius: 14px;
+  background: var(--bg-card);
+  color: var(--ink);
+  padding: 14px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  min-height: 56px;
+}
+.btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(31, 41, 51, 0.12);
+}
+.btn--primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.btn--accent {
+  background: var(--primary);
+  color: var(--primary-ink);
+}
+.btn__icon {
+  font-size: 22px;
+}
+.btn__sub {
+  font-size: 12px;
+  opacity: 0.7;
+  border: 2px solid currentColor;
+  border-radius: 6px;
+  padding: 0 4px;
+}
+
+/* ---------- Schedule form ---------- */
+.schedule-form {
+  display: none;
+  gap: 8px;
+  padding: 12px;
+  background: #fff7e0;
+  border: 3px solid var(--face-border);
+  border-radius: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.schedule-form--open {
+  display: flex;
+}
+.schedule-form input {
+  flex: 1;
+  min-width: 200px;
+  font: inherit;
+  font-size: 18px;
+  padding: 12px 14px;
+  border: 3px solid var(--face-border);
+  border-radius: 12px;
+  background: #fff;
+}
+
+/* ---------- Schedule tab ---------- */
+.schedule-header h2 {
+  margin: 0 0 4px;
+  font-size: 24px;
+}
+.schedule-header__hint {
+  margin: 0 0 16px;
+  color: var(--ink-soft);
+  font-size: 14px;
+}
+.schedule-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.schedule-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--ink-soft);
+  border: 2px dashed var(--ink-soft);
+  border-radius: 14px;
+}
+
+.tile {
+  position: relative;
+  background: var(--bg-card);
+  border: 3px solid var(--face-border);
+  border-radius: var(--radius);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: var(--shadow);
+  cursor: grab;
+  user-select: none;
+}
+.tile--dragging {
+  opacity: 0.6;
+  cursor: grabbing;
+}
+.tile__face {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+}
+.tile__face .clock-face {
+  width: 100%;
+}
+.tile__time {
+  text-align: center;
+  font-weight: 800;
+  font-size: 22px;
+}
+.tile__time rt {
+  font-size: 0.4em;
+  color: var(--ink-soft);
+}
+.tile__text {
+  text-align: center;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--ink-soft);
+  word-break: break-word;
+}
+.tile__delete {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--face-border);
+  background: #fff;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--warn);
+  cursor: pointer;
+}
+.tile__delete:hover {
+  background: var(--warn);
+  color: #fff;
+}
