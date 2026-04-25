@@ -12,21 +12,24 @@ export class TimeReadout {
 
   update(hour: number, minute: number): void {
     const t = readTimeJa(hour, minute);
-    // Ruby keeps the digits visible while showing kana above. The 時/分 kanji
-    // also gets furigana so first-graders can read every character.
+    const hourSplit = splitKana(t.hourKana, ["じ"]);
+    const minuteSplit = splitKana(t.minuteKana, ["ぷん", "ふん"]);
     this.el.innerHTML = `
-      <ruby class="time-readout__num">${t.hourDigits}<rt>${kanaForDigits(t.hourKana)}</rt></ruby><ruby class="time-readout__unit">時<rt>じ</rt></ruby>
-      <ruby class="time-readout__num">${t.minuteDigits}<rt>${kanaForDigits(t.minuteKana)}</rt></ruby><ruby class="time-readout__unit">分<rt>ふん</rt></ruby>
+      <ruby class="time-readout__num">${t.hourDigits}<rt>${hourSplit.digits}</rt></ruby><ruby class="time-readout__unit">時<rt>${hourSplit.unit}</rt></ruby>
+      <ruby class="time-readout__num">${t.minuteDigits}<rt>${minuteSplit.digits}</rt></ruby><ruby class="time-readout__unit">分<rt>${minuteSplit.unit}</rt></ruby>
     `.trim();
   }
 }
 
-// The kana already contains the unit (じ / ふん etc.). We split it so that the
-// numeric ruby shows just the number reading and the unit ruby shows its own
-// reading. This keeps each ruby pair short and aligned with the character.
-function kanaForDigits(full: string): string {
-  // Strip trailing じ / ふん / ぷん so the reading sits over the digits.
-  return full
-    .replace(/(じ)$/, "")
-    .replace(/(ぷん|ふん)$/, "");
+// Splits the full kana into the digit-portion and the unit-portion (じ / ふん / ぷん)
+// so each ruby pair sits over the right character. The unit varies (e.g. 1分→ぷん,
+// 2分→ふん) based on the ones digit, so we take it from the actual kana rather
+// than hard-coding it.
+function splitKana(full: string, units: string[]): { digits: string; unit: string } {
+  for (const u of units) {
+    if (full.endsWith(u)) {
+      return { digits: full.slice(0, -u.length), unit: u };
+    }
+  }
+  return { digits: full, unit: units[0] };
 }
