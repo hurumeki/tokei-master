@@ -371,6 +371,7 @@ body {
   box-shadow: var(--shadow);
   cursor: grab;
   user-select: none;
+  touch-action: none;
 }
 .tile--dragging {
   opacity: 0.6;
