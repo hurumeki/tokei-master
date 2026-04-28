@@ -136,12 +136,18 @@ export class ScheduleTab {
     // Touch fallback: long-press starts a manual reorder. The native dragstart
     // already covers most desktop browsers; mobile browsers vary, so we add a
     // pointer-based drag for touch devices that don't fire dragstart.
+    // touch-action:none on .tile (CSS) prevents pointercancel from scroll.
     let pressTimer: number | null = null;
     let dragging = false;
     let pointerId: number | null = null;
+    let startX = 0;
+    let startY = 0;
     tile.addEventListener("pointerdown", (e) => {
       if (e.pointerType !== "touch") return;
+      if (pointerId !== null) return; // ignore additional touch points
       pointerId = e.pointerId;
+      startX = e.clientX;
+      startY = e.clientY;
       pressTimer = window.setTimeout(() => {
         dragging = true;
         tile.classList.add("tile--dragging");
@@ -149,7 +155,19 @@ export class ScheduleTab {
       }, 350);
     });
     tile.addEventListener("pointermove", (e) => {
-      if (!dragging || e.pointerId !== pointerId) return;
+      if (e.pointerId !== pointerId) return;
+      if (!dragging) {
+        // Cancel long-press if finger moved more than 10px (user is scrolling).
+        if (
+          pressTimer !== null &&
+          Math.hypot(e.clientX - startX, e.clientY - startY) > 10
+        ) {
+          clearTimeout(pressTimer);
+          pressTimer = null;
+          pointerId = null;
+        }
+        return;
+      }
       const target = document
         .elementFromPoint(e.clientX, e.clientY)
         ?.closest<HTMLElement>(".tile");
