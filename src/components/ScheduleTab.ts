@@ -103,7 +103,16 @@ export class ScheduleTab {
   }
 
   private attachDnd(tile: HTMLElement): void {
+    // Track touch interaction so we can suppress the native HTML5 drag, which
+    // mobile browsers may try to start during a long press and immediately
+    // cancel — that would fire dragend mid-touch and break our reorder.
+    let touching = false;
+
     tile.addEventListener("dragstart", (e) => {
+      if (touching) {
+        e.preventDefault();
+        return;
+      }
       tile.classList.add("tile--dragging");
       e.dataTransfer?.setData("text/plain", tile.dataset.id ?? "");
       e.dataTransfer!.effectAllowed = "move";
@@ -145,6 +154,7 @@ export class ScheduleTab {
     tile.addEventListener("pointerdown", (e) => {
       if (e.pointerType !== "touch") return;
       if (pointerId !== null) return; // ignore additional touch points
+      touching = true;
       pointerId = e.pointerId;
       startX = e.clientX;
       startY = e.clientY;
@@ -165,6 +175,7 @@ export class ScheduleTab {
           clearTimeout(pressTimer);
           pressTimer = null;
           pointerId = null;
+          touching = false;
         }
         return;
       }
@@ -200,6 +211,7 @@ export class ScheduleTab {
         saveSchedules(reordered);
       }
       pointerId = null;
+      touching = false;
     };
     tile.addEventListener("pointerup", endTouch);
     tile.addEventListener("pointercancel", endTouch);
