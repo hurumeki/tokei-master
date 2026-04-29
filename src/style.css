@@ -369,13 +369,15 @@ body {
   flex-direction: column;
   gap: 8px;
   box-shadow: var(--shadow);
-  cursor: grab;
+  cursor: pointer;
   user-select: none;
-  touch-action: none;
+  -webkit-touch-callout: none;
+  transition: border-color 0.15s, background-color 0.15s, transform 0.15s;
 }
-.tile--dragging {
-  opacity: 0.6;
-  cursor: grabbing;
+.tile--selected {
+  border-color: var(--primary);
+  background: #fff0f5;
+  transform: scale(0.97);
 }
 .tile__face {
   width: 100%;
