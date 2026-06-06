@@ -83,7 +83,19 @@ export class ClockTab {
       }
     });
 
-    controls.append(speakJa, speakEn, nowBtn, saveBtn);
+    // Quiz toggle: hide the readout so kids can guess the time.
+    const quizBtn = makeButton({
+      icon: "🙈",
+      label: "よみかたをかくす",
+      cls: "btn",
+    });
+    quizBtn.addEventListener("click", () => {
+      const hidden = !this.readout.isHidden();
+      this.readout.setHidden(hidden);
+      this.updateQuizButton(quizBtn, hidden);
+    });
+
+    controls.append(speakJa, speakEn, nowBtn, quizBtn, saveBtn);
 
     // Inline schedule form, shown when the user taps "save".
     this.scheduleForm = document.createElement("form");
@@ -128,6 +140,16 @@ export class ClockTab {
 
   private handleChange(s: ClockState): void {
     this.readout.update(s.hour, s.minute);
+  }
+
+  private updateQuizButton(btn: HTMLButtonElement, hidden: boolean): void {
+    btn.classList.toggle("btn--primary", hidden);
+    const label = hidden ? "よみかたをみる" : "よみかたをかくす";
+    const icon = hidden ? "👀" : "🙈";
+    btn.querySelector(".btn__icon")!.textContent = icon;
+    btn.querySelector(".btn__label")!.textContent = label;
+    btn.setAttribute("aria-label", label);
+    btn.setAttribute("aria-pressed", String(hidden));
   }
 }
 

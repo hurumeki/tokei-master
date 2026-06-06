@@ -1,9 +1,13 @@
 // Renders the current time as kanji/digit characters with ruby furigana.
+// Can also be hidden so the time becomes a "なんじなんふん？" quiz for kids.
 
 import { readTimeJa } from "../lib/japanese.ts";
 
 export class TimeReadout {
   readonly el: HTMLDivElement;
+  private hour = 0;
+  private minute = 0;
+  private hidden = false;
 
   constructor() {
     this.el = document.createElement("div");
@@ -11,7 +15,31 @@ export class TimeReadout {
   }
 
   update(hour: number, minute: number): void {
-    const t = readTimeJa(hour, minute);
+    this.hour = hour;
+    this.minute = minute;
+    this.render();
+  }
+
+  setHidden(hidden: boolean): void {
+    this.hidden = hidden;
+    this.render();
+  }
+
+  isHidden(): boolean {
+    return this.hidden;
+  }
+
+  private render(): void {
+    if (this.hidden) {
+      // Quiz mode: hide the digits, ask "なんじなんふん？".
+      this.el.innerHTML = `
+        <ruby class="time-readout__num">？？<rt>なん</rt></ruby><ruby class="time-readout__unit">時<rt>じ</rt></ruby>
+        <ruby class="time-readout__num">？？<rt>なん</rt></ruby><ruby class="time-readout__unit">分<rt>ふん</rt></ruby>
+      `.trim();
+      return;
+    }
+
+    const t = readTimeJa(this.hour, this.minute);
     const hourSplit = splitKana(t.hourKana, ["じ"]);
     const minuteSplit = splitKana(t.minuteKana, ["ぷん", "ふん"]);
     this.el.innerHTML = `
